@@ -73,4 +73,27 @@ try:
                             event = f"KEYON:{key_id}\n"
                             print(f"Key {key_id} (r{r}c{c}) ON")
                         else:
-                            event = f"KEYOFF:{key_id
+                            event = f"KEYOFF:{key_id}\n"
+                            print(f"Key {key_id} (r{r}c{c}) OFF")
+                        
+                        # Send over serial
+                        if ser and ser.is_open:
+                            try:
+                                ser.write(event.encode('utf-8'))
+                            except:
+                                pass
+                else:
+                    # Reset debounce timer when stable
+                    debounce_timer[r][c] = current_time
+        
+            # Deactivate row (set HIGH)
+            GPIO.output(ROW_PINS[r], GPIO.HIGH)
+        
+        time.sleep(0.005)  # ~200 Hz scan rate - fast enough for organ feel
+
+except KeyboardInterrupt:
+    print("\nExiting...")
+finally:
+    if ser and ser.is_open:
+        ser.close()
+    GPIO.cleanup()
