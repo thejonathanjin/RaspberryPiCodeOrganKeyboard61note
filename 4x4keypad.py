@@ -2,8 +2,15 @@ import RPi.GPIO as GPIO
 import time
 
 # GPIO Pin Setup (BCM Numbering)
-ROWS = [25, 8, 7, 1]
-COLS = [12, 16, 20, 21]
+
+# ~ ROW_PINS = [2, 3, 4, 17, 27, 22]    # 6 rows - outputs, change to your wiring
+# ~ COL_PINS = [10, 9, 11, 5, 6, 13, 19, 26, 21, 20, 16] # 11 cols - inputs with pull-up
+
+# ~ ROWS = [25, 8, 7, 1]
+# ~ COLS = [12, 16, 20, 21]
+
+ROWS = [2, 3, 4, 17]
+COLS = [10, 9, 11, 5]
 
 # Keypad Layout
 KEYS = [
@@ -13,32 +20,61 @@ KEYS = [
     ['*', '0', '#', 'D']
 ]
 
+# def setup():
+#     GPIO.setmode(GPIO.BCM)
+#     # Set rows as outputs, initialized to LOW
+#     for r in ROWS:
+#         GPIO.setup(r, GPIO.OUT)
+#         GPIO.output(r, GPIO.LOW)
+#     # Set columns as inputs with internal pull-down resistors
+#     for c in COLS:
+#         GPIO.setup(c, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        
 def setup():
     GPIO.setmode(GPIO.BCM)
-    # Set rows as outputs, initialized to LOW
-    for r in ROWS:
-        GPIO.setup(r, GPIO.OUT)
-        GPIO.output(r, GPIO.LOW)
-    # Set columns as inputs with internal pull-down resistors
+    # Set cols as outputs, initialized to LOW
     for c in COLS:
-        GPIO.setup(c, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(c, GPIO.OUT)
+        GPIO.output(c, GPIO.LOW)
+    # Set rows as inputs with internal pull-up resistors
+    for r in ROWS:
+        GPIO.setup(r, GPIO.IN, pull_up_down=GPIO.PUD_UP) # comment by JT "should this be PUD_UP instead of DOWN?"
+
+# def scan_keypad():
+#     for row_idx, row_pin in enumerate(ROWS):
+#         # Send a HIGH pulse to the current row
+#         GPIO.output(row_pin, GPIO.HIGH)
+#         for col_idx, col_pin in enumerate(COLS):
+#             # Check if any column in this row is now HIGH
+#             if GPIO.input(col_pin) == GPIO.HIGH:
+#                 key = KEYS[row_idx][col_idx]
+#                 print(f"Key Pressed: {key}")
+#                 # Wait until button is released to avoid double-triggers
+#                 while GPIO.input(col_pin) == GPIO.HIGH:
+#                     time.sleep(0.05)
+#                 GPIO.output(row_pin, GPIO.LOW)
+#                 return key
+#         # Reset row to LOW before moving to next
+#         GPIO.output(row_pin, GPIO.LOW)
+#     return None
 
 def scan_keypad():
-    for row_idx, row_pin in enumerate(ROWS):
+    for col_idx, col_pin in enumerate(COLS):
         # Send a HIGH pulse to the current row
-        GPIO.output(row_pin, GPIO.HIGH)
-        for col_idx, col_pin in enumerate(COLS):
+        GPIO.output(col_pin, GPIO.HIGH)
+        
+        for row_idx, row_pin in enumerate(ROWS):
             # Check if any column in this row is now HIGH
-            if GPIO.input(col_pin) == GPIO.HIGH:
-                key = KEYS[row_idx][col_idx]
+            if GPIO.input(row_pin) == GPIO.HIGH:
+                key = KEYS[col_idx][row_idx]
                 print(f"Key Pressed: {key}")
                 # Wait until button is released to avoid double-triggers
-                while GPIO.input(col_pin) == GPIO.HIGH:
+                while GPIO.input(row_pin) == GPIO.HIGH:
                     time.sleep(0.05)
-                GPIO.output(row_pin, GPIO.LOW)
+                GPIO.output(col_pin, GPIO.LOW)
                 return key
         # Reset row to LOW before moving to next
-        GPIO.output(row_pin, GPIO.LOW)
+        GPIO.output(col_pin, GPIO.LOW)
     return None
 
 try:
