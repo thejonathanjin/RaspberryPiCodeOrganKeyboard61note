@@ -9,8 +9,8 @@ import time
 # ~ ROWS = [25, 8, 7, 1]
 # ~ COLS = [12, 16, 20, 21]
 
-ROWS = [2, 3, 4, 17]
-COLS = [10, 9, 11, 5]
+ROWS = [2, 3, 4, 17] # ROWS are INPUT(S) x4
+COLS = [10, 9, 11, 5] # COLS are OUTPUT(S) x4
 
 # Keypad Layout
 KEYS = [
@@ -57,6 +57,10 @@ def setup():
 #         # Reset row to LOW before moving to next
 #         GPIO.output(row_pin, GPIO.LOW)
 #     return None
+
+# same code block as above, except ROWS is swapped with COLS, vice versa; 
+# row_pin, col_pin variables swapped
+# row_idx, col_idx variables swapped
 
 def scan_keypad():
     for col_idx, col_pin in enumerate(COLS):
